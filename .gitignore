@@ -1,0 +1,11 @@
+.DS_Store
+.idea
+.vscode
+logs
+datastore
+*.log
+vendor
+.htaccess
+config/config.*.php
+!config/config.product.php
+.editorconfig

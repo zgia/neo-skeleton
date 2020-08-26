@@ -1,0 +1,25 @@
+{
+  "name": "zgia/tinycrm",
+  "description": "TinyCRM by zgia",
+  "license": "MIT",
+  "homepage": "https://tinycrm.cn",
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://mirrors.aliyun.com/composer/"
+    }
+  },
+  "autoload": {
+    "files": [
+      "app/Function/functions.php"
+    ],
+    "psr-4": {
+      "App\\": "app"
+    }
+  },
+  "require": {
+    "zgia/neo": "dev-master",
+    "swiftmailer/swiftmailer": "^6.2",
+    "nikic/fast-route": "^1.3"
+  }
+}
