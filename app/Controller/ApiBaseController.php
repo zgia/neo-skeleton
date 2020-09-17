@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use stdClass;
+
 /**
  * 接口抽象基类
  * Class base
@@ -22,7 +24,7 @@ class ApiBaseController extends BaseController
     /**
      * 重写父类beforeRender方法，防止影响其它引用NEO的项目
      */
-    protected function beforeRender()
+    public function beforeRender()
     {
     }
 
@@ -36,15 +38,11 @@ class ApiBaseController extends BaseController
      */
     protected function resp(?string $errMsg = null, int $errCode = I_SUCCESS, ?array $data = null, int $responseCode = 200)
     {
-        $arr = ['code' => $errCode];
-
-        if ($errMsg) {
-            $arr['msg'] = $errMsg;
-        }
-
-        if ($data) {
-            $arr['data'] = $data;
-        }
+        $arr = [
+            'code' => $errCode,
+            'msg' => $errMsg ?: '',
+            'data' => $data ?: new stdClass(),
+        ];
 
         printOutJSON($arr, $responseCode);
     }

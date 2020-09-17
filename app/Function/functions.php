@@ -4,7 +4,6 @@ use App\Helper\BaseHelper;
 use App\Service\BaseService;
 use App\Service\System\SystemService;
 use Neo\Base\Model;
-use Neo\Config;
 use Neo\Html\Page;
 
 /**
@@ -132,21 +131,16 @@ function displayMessage(string $message, string $url = '', $back = false)
  * @param string       $contentType text/plain 或者 text/html
  * @param string       $attachment  附件绝对路径
  *
- * @return int The number of successful recipients. Can be 0 which indicates failure
+ * @return [] [int, []]
+ *            Element 0: int, The number of successful recipients, can be 0 which indicates failure.
+ *            Element 1: array, failed recipients
  */
 function sendMail(string $subject, string $body, $emails, ?string $contentType = null, ?string $attachment = null)
 {
     // Create the Transport
-    $transport = (new Swift_SmtpTransport(
-        getOption('smtp_host'),
-        getOption('smtp_port'),
-        getOption('smtp_encryption') ?: null
-    ))
+    $transport = (new Swift_SmtpTransport(getOption('smtp_host'), getOption('smtp_port'), getOption('smtp_encryption')))
         ->setUsername(getOption('smtp_username'))
         ->setPassword(getOption('smtp_password'));
-
-    // Create the Mailer using your created Transport
-    $mailer = new Swift_Mailer($transport);
 
     // Create a message
     $message = (new Swift_Message($subject))
@@ -159,7 +153,10 @@ function sendMail(string $subject, string $body, $emails, ?string $contentType =
     }
 
     // Send the message
-    return $mailer->send($message);
+    $failedRecipients = [];
+    $sent = (new Swift_Mailer($transport))->send($message, $failedRecipients);
+
+    return [$sent, $failedRecipients];
 }
 
 /**

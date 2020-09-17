@@ -133,7 +133,7 @@ class BaseController extends Controller
     /**
      * 预先处理
      */
-    protected function beforeRender()
+    public function beforeRender()
     {
     }
 
