@@ -47,6 +47,6 @@ require ABSPATH . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autolo
         // 路由
         require ABSPATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'routes.php';
 
-        MvcHelper::dispatch($neo);
+        MvcHelper::loadWebPage($neo);
     }
 })();

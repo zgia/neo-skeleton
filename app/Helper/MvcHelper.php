@@ -2,8 +2,10 @@
 
 namespace App\Helper;
 
+use App\Helper\Route\RouteHelper;
 use Neo\Config;
 use Neo\Exception\NeoException;
+use Neo\Http\Request;
 use Neo\HttpAuth\HttpJWT;
 use Neo\Neo;
 use Neo\Utility;
@@ -13,14 +15,6 @@ use Neo\Utility;
  */
 class MvcHelper extends BaseHelper
 {
-    /**
-     * 构造函数
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * 401 unauthorized
      */
@@ -189,18 +183,30 @@ class MvcHelper extends BaseHelper
      *
      * @param Neo $neo
      */
-    public static function dispatch(Neo $neo): void
+    public static function loadWebPage(Neo $neo): void
     {
+        $request = $neo->getRequest();
+
         // 分页导航第几页
-        define('CURRENT_PAGE', max($neo->getRequest()->_request('p'), 1));
+        $request->currentPage = max((int) $request->_request('p'), 1);
+
+        // $_SERVER
+        $server = $request->_server();
+        $path = Request::stripQueryString(parse_url($server['REQUEST_URI'], PHP_URL_PATH) ?: '');
+
+        // 系统初始化时，处理当前访问的用户。检查权限，是否允许访问当前页面等等
+        // $user = static::initUser($neo);
+        // static::accessAuth($path);
 
         // 路由
-        $route = new RouteHelper($neo);
+        $route = new RouteHelper();
+        $neo->routeHelper = $route;
+
         $route->init(
             customizedRoutes(),
             NEO_ROUTE_CACHE_ENABLE,
             ['cacheFile' => $neo['datastore_dir'] . DIRECTORY_SEPARATOR . 'neo_routecaches.php']
         );
-        $route->dispatch();
+        $route->dispatch($server['REQUEST_METHOD'], $path);
     }
 }

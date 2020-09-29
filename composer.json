@@ -21,5 +21,8 @@
     "zgia/neo": "dev-master",
     "swiftmailer/swiftmailer": "^6.2",
     "nikic/fast-route": "^1.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0"
   }
 }

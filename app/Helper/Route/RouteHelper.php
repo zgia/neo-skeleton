@@ -1,32 +1,28 @@
 <?php
 
-namespace App\Helper;
+namespace App\Helper\Route;
 
+use App\Helper\BaseHelper;
 use FastRoute\Dispatcher;
 use Neo\Exception\LogicException;
 use Neo\Exception\ResourceNotFoundException;
-use Neo\Http\Request;
-use Neo\Neo;
 
 /**
  * 路由
  */
-class RouteHelper
+class RouteHelper extends BaseHelper
 {
-    /**
-     * @var Neo
-     */
-    private $neo;
-
     /**
      * @var Dispatcher
      */
     private $dispatcher;
 
-    public function __construct(Neo $neo)
-    {
-        $this->neo = $neo;
-    }
+    /**
+     * 路由扩展属性
+     *
+     * @var array
+     */
+    protected $options = [];
 
     /**
      * 初始化
@@ -37,6 +33,8 @@ class RouteHelper
      */
     public function init(callable $routeDefinitionCallback, $cache = false, array $options = [])
     {
+        $options['routeCollector'] = 'App\\Helper\\Route\\RouteCollector';
+
         if ($cache) {
             $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, $options);
         } else {
@@ -46,26 +44,22 @@ class RouteHelper
 
     /**
      * 加载路由
+     *
+     * @param string $method
+     * @param string $path
      */
-    public function dispatch()
+    public function dispatch(string $method = 'POST', string $path = '/')
     {
-        $server = $this->neo->getRequest()->_server();
-
-        $parts = parse_url($server['REQUEST_URI']);
-        $path = $parts['path'] ?? '';
-
         if ($path == '/favicon.ico') {
             return;
         }
-
-        $path = Request::stripQueryString($path);
 
         // 特殊处理
         ($path === '' || $path === '/' || $path === '/index.php') && $path = '/index';
 
         $path = rawurldecode(rtrim($path, '/'));
 
-        $routeInfo = $this->dispatcher->dispatch($server['REQUEST_METHOD'], $path);
+        $routeInfo = $this->dispatcher->dispatch($method, $path);
 
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
@@ -127,5 +121,16 @@ class RouteHelper
         $this->neo['routeInfo'] = ['class' => $className, 'func' => $funcName, 'params' => $params];
 
         (new $className())->{$funcName}(...$params);
+    }
+
+    /**
+     * 设置路由扩展属性
+     *
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function setOptions(string $key, $value)
+    {
+        $this->options[$key] = $value;
     }
 }

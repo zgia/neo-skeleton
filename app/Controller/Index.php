@@ -5,7 +5,7 @@ namespace App\Controller;
 /**
  * 首页控制器
  */
-class Index extends ApiBaseController
+class Index extends BaseController
 {
     // 不要登录验证
     protected $needSignin = false;
@@ -23,6 +23,6 @@ class Index extends ApiBaseController
      */
     public function index()
     {
-        printOutJSON(['message' => '世界真奇妙。']);
+        $this->resp('世界真奇妙。');
     }
 }

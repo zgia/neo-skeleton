@@ -64,12 +64,7 @@ function isDevelop()
  */
 function printErrorJSON(string $msg, int $code = 1, int $statusCode = 200)
 {
-    $jsonarray = [
-        'code' => $code,
-        'msg' => $msg,
-    ];
-
-    printOutJSON($jsonarray, $statusCode);
+    printSuccessJSON($msg, $code, $statusCode);
 }
 
 /**
@@ -99,11 +94,7 @@ function printSuccessJSON(string $msg, int $code = 0, int $statusCode = 200)
  */
 function displayError(string $message, string $url = '', bool $back = true)
 {
-    if (neo()->getRequest()->isAjax()) {
-        printErrorJSON($message);
-    } else {
-        Page::redirect($url, $message, __('Error'), $url ? 2 : 0, true, $back);
-    }
+    displayMessage($message, $url, $back, true);
 }
 
 /**
@@ -112,13 +103,21 @@ function displayError(string $message, string $url = '', bool $back = true)
  * @param string $message 显示的信息
  * @param string $url     页面跳转地址
  * @param bool   $back    是否显示后退链接
+ * @param bool   $isError 是否错误信息
  */
-function displayMessage(string $message, string $url = '', $back = false)
+function displayMessage(string $message, string $url = '', bool $back = false, bool $isError = false)
 {
     if (neo()->getRequest()->isAjax()) {
-        printSuccessJSON($message);
+        printSuccessJSON($message, $isError ? 1 : 0);
     } else {
-        Page::redirect($url, $message, __('Information'), 0, false, $back);
+        Page::redirect(
+            $url,
+            $message,
+            $isError ? __('Error') : __('Information'),
+            0,
+            $isError,
+            $back
+        );
     }
 }
 

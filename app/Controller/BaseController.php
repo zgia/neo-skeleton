@@ -34,18 +34,25 @@ class BaseController extends Controller
     protected $allowNoLoginMethods = [];
 
     /**
-     * 用户信息有强制输入项，如果没有输入，则只能停在当前页
-     *
-     * @var bool
-     */
-    protected $needMandatoryInfo = true;
-
-    /**
      * Constructor
      */
     public function __construct()
     {
         parent::__construct();
+
+        switch ($this->getRequestMethod()) {
+            case 'GET':
+            case 'DELETE':
+            case 'PUT':
+            case 'POST':
+                break;
+            case 'OPTIONS':
+                $this->options();
+                break;
+            default:
+                $this->forbidden(405);
+                break;
+        }
 
         foreach ($this->helpers as $helper) {
             $class = $this->getClassName($helper);
@@ -59,19 +66,18 @@ class BaseController extends Controller
             $this->{$class} = loadService($service);
         }
 
-        switch ($this->request->getMethod()) {
-            case 'GET':
-            case 'DELETE':
-            case 'PUT':
-            case 'POST':
-                break;
-            case 'OPTIONS':
-                $this->options();
-                break;
-            default:
-                $this->forbidden(405);
-                break;
-        }
+        $this->request->setAjax(true);
+        $this->response->sendAccessControlHeaders();
+    }
+
+    /**
+     * Request Method(大写字符串)
+     *
+     * @return string The request method
+     */
+    public function getRequestMethod()
+    {
+        return $this->request->getMethod();
     }
 
     /**
@@ -131,13 +137,6 @@ class BaseController extends Controller
     }
 
     /**
-     * 预先处理
-     */
-    public function beforeRender()
-    {
-    }
-
-    /**
      * 403 Forbidden
      *
      * @param int $code
@@ -153,6 +152,25 @@ class BaseController extends Controller
     protected function options()
     {
         byebye(204);
+    }
+
+    /**
+     * 输出JSON格式的数据
+     *
+     * @param string     $errMsg
+     * @param int        $errCode
+     * @param null|array $data
+     * @param int        $responseCode
+     */
+    protected function resp(string $errMsg, int $errCode = I_SUCCESS, ?array $data = null, int $responseCode = 200)
+    {
+        $arr = [
+            'code' => $errCode,
+            'msg' => $errMsg ?: '',
+            'data' => $data ?: new \stdClass(),
+        ];
+
+        printOutJSON($arr, $responseCode);
     }
 
     /**
