@@ -133,4 +133,14 @@ class RouteHelper extends BaseHelper
     {
         $this->options[$key] = $value;
     }
+
+    /**
+     * 获取路由扩展属性
+     *
+     * @return []
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
 }

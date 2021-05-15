@@ -181,7 +181,7 @@ class MvcHelper extends BaseHelper
     /**
      * 加载Web页面处理
      *
-     * @param Neo $neo
+     * @param Neo $neocodc
      */
     public static function loadWebPage(Neo $neo): void
     {
